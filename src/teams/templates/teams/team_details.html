@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="top">
+        <div class="logo">
+            <img src="logo/{{team_name}}.png" alt="{{team_name}} logo" style="height: 40px;">
+        </div>
+        <div class="team_name">
+            <h1>{{ team_name }}</h1>
+        </div>
+        <div class="manager">
+            <h3>Entraineur: {{coach}}</h3>
+        </div>
+    </div>
+
+<div class="team_starter_player">
+    <div class="starter_player">
+        {% for player in team_starter_players %}
+        <h3 class="starter">{{player}}</h3>
+        {% endfor %}
+        <div class="starter_positions">
+            {% for position in starter_positions %}</div>
+            <h5 class="positions">{{position}}</h5>
+            {% endfor %}
+        </div>
+</div>
+</body>
+</html>
