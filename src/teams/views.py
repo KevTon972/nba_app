@@ -13,9 +13,7 @@ players = {}
 test = {}
 
 team_managers = {}
-team_players = []
-positions = []
-jersey_numbers = []
+
 
 def nba_teams_id_name():
     '''collect nba id and name from api'''
@@ -41,6 +39,7 @@ def nba_players():
     nba_teams = nba_teams_id_name()
     team_id = [nba_teams[key]['id'] for key in nba_teams]
     team_names = [key for key in nba_teams]
+    team_players = []
 
     for id in team_id:
         url = f"https://basketapi1.p.rapidapi.com/api/basketball/team/{id}/players"
@@ -60,7 +59,7 @@ def nba_players():
     return players
 
 
-def team_manager():
+def team_manager(team_name):
     '''collect manager's names from each teams'''
     nba_teams = nba_teams_id_name()
     teams_names = [key for key in nba_teams]
@@ -94,11 +93,11 @@ def team_manager():
                     nba_teams[team_name]['manager'] = response['manager']['name']
         except TypeError:
             continue
-    return nba_teams
+    return nba_teams[team_name]['manager']
 
 
 def teams_list(request):
-    '''afficher teams and their logos in teams-list template'''
+    '''display teams and their logos in teams-list template'''
     nba_teams = nba_teams_id_name()
     team_names = [key for key in nba_teams]
 
@@ -106,16 +105,17 @@ def teams_list(request):
 
 
 def team_details(request, team_name):
-
+    """display team's players, coach, last match and next match"""
     nbaplayers = nba_players()
-    manager = team_manager()
+    manager = team_manager(team_name)
     players_names = [key for key in nbaplayers]
+    team_players = []
+    positions = []
+    jersey_numbers = []
     coach = ''
 
-    if manager[team_name]['manager']:
-        coach = manager[team_name]['manager']
-
-
+    if manager:
+        coach = manager
 
     for player_name in players_names:
         if nbaplayers[player_name]['team'] == team_name:
