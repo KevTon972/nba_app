@@ -8,15 +8,10 @@ headers = {
         "X-RapidAPI-Key": config('X-RapidAPI-Key'),
         "X-RapidAPI-Host": config('X-RapidAPI-Host')
     }
-nba_teams = {}
-players = {}
-test = {}
-
-team_managers = {}
-
 
 def nba_teams_id_name():
     '''collect nba id and name from api'''
+    nba_teams = {}
     url = "https://basketapi1.p.rapidapi.com/api/basketball/category/15/events/16/1/2023"
     response = json.loads(requests.request("GET", url, headers=headers).text)
     i = 0
@@ -40,6 +35,7 @@ def nba_players():
     team_id = [nba_teams[key]['id'] for key in nba_teams]
     team_names = [key for key in nba_teams]
     team_players = []
+    players = {}
 
     for id in team_id:
         url = f"https://basketapi1.p.rapidapi.com/api/basketball/team/{id}/players"
@@ -59,7 +55,7 @@ def nba_players():
     return players
 
 
-def team_manager(team_name):
+def team_manager(team):
     '''collect manager's names from each teams'''
     nba_teams = nba_teams_id_name()
     teams_names = [key for key in nba_teams]
@@ -93,7 +89,47 @@ def team_manager(team_name):
                     nba_teams[team_name]['manager'] = response['manager']['name']
         except TypeError:
             continue
-    return nba_teams[team_name]['manager']
+
+    return nba_teams[team]['manager']
+
+
+def team_next_match(team):
+    """collect team's next match."""
+    nba_teams = nba_teams_id_name()
+    team_id = nba_teams[team]['id']
+    url = f"https://basketapi1.p.rapidapi.com/api/basketball/team/{team_id}/matches/next/0"
+    response = json.loads(requests.request("GET", url, headers=headers).text)
+
+    if response['events'][0]['awayTeam']['name'] == team:
+        return response['events'][0]['homeTeam']['name']
+    return response['events'][0]['awayTeam']['name']
+
+
+def team_last_match(team):
+    """collect team's last match."""
+    last_macth = {}
+    nba_teams = nba_teams_id_name()
+    team_id = nba_teams[team]['id']
+    url = f"https://basketapi1.p.rapidapi.com/api/basketball/team/{team_id}/matches/previous/0"
+    response = json.loads(requests.request("GET", url, headers=headers).text)
+    last_match_indx = len(response['events']) - 1
+
+    if response['events'][last_match_indx]['awayTeam']['name'] == team:
+        last_macth = {
+            f'{team}': team,
+            f'{team}_score': response['events'][last_match_indx]['awayScore']['display'],
+            'other_team': response['events'][last_match_indx]['homeTeam']['name'],
+            'other_team_score': response['events'][last_match_indx]['homeScore']['display']
+        }
+        return last_macth
+    else:
+        last_macth = {
+            f'{team}': team,
+            f'{team}_score': response['events'][last_match_indx]['homeScore']['display'],
+            'other_team': response['events'][last_match_indx]['awayTeam']['name'],
+            'other_team_score': response['events'][last_match_indx]['awayScore']['display']
+        }
+        return last_macth
 
 
 def teams_list(request):
@@ -108,6 +144,8 @@ def team_details(request, team_name):
     """display team's players, coach, last match and next match"""
     nbaplayers = nba_players()
     manager = team_manager(team_name)
+    next_opponent =team_next_match(team_name)
+    last_match = team_last_match(team_name)
     players_names = [key for key in nbaplayers]
     team_players = []
     positions = []
@@ -129,6 +167,11 @@ def team_details(request, team_name):
                 'team_bench': team_players[5:],
                 'bench_positions': positions[5:],
                 'jersey_numbers': jersey_numbers,
-                'coach': coach}
+                'coach': coach,
+                'next_opponent': next_opponent,
+                'team_score': last_match[f'{team_name}_score'],
+                'last_opponent': last_match['other_team'],
+                'opponent_score': last_match['other_team_score'],
+                }
 
     return render(request, 'teams/team_details.html', context=context)

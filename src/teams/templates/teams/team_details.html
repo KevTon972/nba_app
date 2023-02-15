@@ -10,7 +10,7 @@
 <body>
     <div class="top">
         <div class="logo">
-            <img src="static/logo/{{team_name}}.png" alt="{{team_name}} logo" style="height: 40px;">
+            <img src="static/logo/{{team_name}}.png" alt="{{team_name}} logo" style="height: 80px;">
         </div>
         <div class="team_name">
             <h1>{{ team_name }}</h1>
@@ -30,6 +30,51 @@
             <h5 class="positions">{{position}}</h5>
             {% endfor %}
         </div>
+        <div class="bottom_page">
+            <div class="team_bench">
+                <table class="team-board">
+                    <thead>
+                        <tr>
+                            <th>player name</th>
+                        </tr>
+                        <tr>
+                            <th>player position</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            {% for player in team_bench%}
+                            <td>
+                                {{player}}
+                            </td>
+                            {% endfor %}
+                            {% for position in bench_positions %}
+                            <td>
+                                {{position}}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="team_schedule">
+                <div class="next_match">
+                    {{next_opponent}}
+                </div>
+                <div class="last_match">
+                    <div class="team_score">
+                        {{team_score}}
+                    </div>
+                    <div class="opponent_logo">
+                        <img src="static/logo/{{last_opponent}}.png" alt="{{last_opponent}} logo">
+                    </div>
+                    <div class="opponent_score">
+                        {{opponent_score}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
 </div>
 </body>
 </html>
