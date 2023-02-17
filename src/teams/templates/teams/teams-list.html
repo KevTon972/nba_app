@@ -24,20 +24,30 @@
                 Stats
             </a>
         </nav>
-        <table class="team-board">
+    </div>
+    <div class="board" style="display: flex; height: 300px;">
+        <div class="logo">
+            {% for logo in teams_logo %}
+            <table class="team_logo_board" style="align-items: center;">
+                <tr>
+                    <td>
+                        <img src="data:image/png;base64,{{logo}}" alt="team logo" style="height: 20px;">
+                    </td>
+                </tr>
+            </table>
+            {% endfor %}
+        </div>
+        <div class="team_name">
+            {% for team in teams %}
+            <table class="team_name_board" style="align-items: center;"></table>
             <tr>
-                {% for logo in teams_logo %}
                 <td>
-                    <img src="data:image/png;base64,{{logo}}" alt="team logo" style="height: 40px;">
-                </td>
-                {% endfor %}
-                <td>
-                    {% for team in teams %}
                     <a href="{% url 'team_details' team %}" class="team_name">{{ team }}</a>
-                    {% endfor %}
                 </td>
             </tr>
         </table>
+        {% endfor %}
+        </div>
     </div>
 
 </body>
