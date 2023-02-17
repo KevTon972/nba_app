@@ -24,18 +24,20 @@
                 Stats
             </a>
         </nav>
-        {% for team in teams %}
         <table class="team-board">
             <tr>
+                {% for logo in teams_logo %}
                 <td>
-                    <img src="static/logo/{{team}}.png" alt= "{{team}} logo" style="height: 40px;">
+                    <img src="data:image/png;base64,{{logo}}" alt="team logo" style="height: 40px;">
                 </td>
+                {% endfor %}
                 <td>
+                    {% for team in teams %}
                     <a href="{% url 'team_details' team %}" class="team_name">{{ team }}</a>
+                    {% endfor %}
                 </td>
             </tr>
         </table>
-        {% endfor %}
     </div>
 
 </body>

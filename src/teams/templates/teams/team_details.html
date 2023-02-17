@@ -10,7 +10,7 @@
 <body>
     <div class="top">
         <div class="logo">
-            <img src="static/logo/{{team_name}}.png" alt="{{team_name}} logo" style="height: 80px;">
+            <img src="data:image/png;base64,{{logo}}" alt="{{team_name}} logo" style="height: 80px;">
         </div>
         <div class="team_name">
             <h1>{{ team_name }}</h1>
@@ -22,6 +22,9 @@
 
 <div class="team_starter_player">
     <div class="starter_player">
+        {% for img in img_starter_player %}
+        <img src="data:image/png;base64,{{img}}" alt="player image" style="height: 80px;">
+        {% endfor %}
         {% for player in team_starter_players %}
         <h3 class="starter">{{player}}</h3>
         {% endfor %}
@@ -66,7 +69,7 @@
                         {{team_score}}
                     </div>
                     <div class="opponent_logo">
-                        <img src="static/logo/{{last_opponent}}.png" alt="{{last_opponent}} logo">
+                        <img src="data:image/png;base64,{{last_opponent_logo}}" alt="opponent image" style="height: 40px;">
                     </div>
                     <div class="opponent_score">
                         {{opponent_score}}

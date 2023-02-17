@@ -1,3 +1,4 @@
+import base64
 from django.shortcuts import render
 from decouple import config
 
@@ -90,7 +91,7 @@ def team_manager(team):
         except TypeError:
             continue
 
-    return nba_teams[team]['manager']
+    return nba_teams[team].get('manager')
 
 
 def team_next_match(team):
@@ -132,21 +133,50 @@ def team_last_match(team):
         return last_macth
 
 
+def team_logo(team_id:int):
+    """return team's logo"""
+    url = f"https://basketapi1.p.rapidapi.com/api/basketball/team/{team_id}/image"
+    response = requests.request("GET", url, headers=headers)
+    logo_decoded = base64.b64encode(response.content).decode('ascii')
+
+    return logo_decoded
+
+
+def players_img(player_id:int):
+    """return player's image"""
+    url = f"https://basketapi1.p.rapidapi.com/api/basketball/player/{player_id}/image"
+    response = requests.request("GET", url, headers=headers)
+    img_decoded = base64.b64encode(response.content).decode('ascii')
+
+    return img_decoded
+
+
 def teams_list(request):
     '''display teams and their logos in teams-list template'''
     nba_teams = nba_teams_id_name()
     team_names = [key for key in nba_teams]
+    teams_logo = []
 
-    return render(request, 'teams/teams-list.html', context={'teams': team_names})
+    for key in nba_teams:
+        teams_logo.append(team_logo(nba_teams[key].get('id')))
+
+    return render(request, 'teams/teams-list.html', context={'teams': team_names, 'teams_logo': teams_logo})
 
 
 def team_details(request, team_name):
     """display team's players, coach, last match and next match"""
-    nbaplayers = nba_players()
-    manager = team_manager(team_name)
+    nba_teams = nba_teams_id_name()                                 # return all nba team's name and id
+    nbaplayers = nba_players()                                      # return all nba player'name, position, jersey_number and id
+    manager = team_manager(team_name)                               # return teams's coach
     next_opponent =team_next_match(team_name)
     last_match = team_last_match(team_name)
+
+    last_opponent_name = last_match.get('other_team')
+    logo = team_logo(nba_teams[team_name].get('id'))
+    last_opponent_logo = team_logo(nba_teams[last_opponent_name].get('id'))
+
     players_names = [key for key in nbaplayers]
+    img_players = []
     team_players = []
     positions = []
     jersey_numbers = []
@@ -157,21 +187,25 @@ def team_details(request, team_name):
 
     for player_name in players_names:
         if nbaplayers[player_name]['team'] == team_name:
+            img_players.append(players_img(nbaplayers[player_name].get('id')))
             team_players.append(player_name)
-            positions.append(nbaplayers[player_name]['position'])
-            jersey_numbers.append(nbaplayers[player_name]['jersey number'])
+            positions.append(nbaplayers[player_name].get('position'))
+            jersey_numbers.append(nbaplayers[player_name].get('jersey number'))
 
-    context = {'team_name': team_name,
+    context = { 'logo': logo,
+                'team_name': team_name,
                 'team_starter_players': team_players[:5],
                 'starter_positions': positions[:5],
+                'img_starter_player': img_players[:5],
                 'team_bench': team_players[5:],
                 'bench_positions': positions[5:],
                 'jersey_numbers': jersey_numbers,
                 'coach': coach,
                 'next_opponent': next_opponent,
-                'team_score': last_match[f'{team_name}_score'],
-                'last_opponent': last_match['other_team'],
-                'opponent_score': last_match['other_team_score'],
+                'team_score': last_match.get(f'{team_name}_score'),
+                'last_opponent_logo': last_opponent_logo,
+                'last_opponent': last_match.get('other_team'),
+                'opponent_score': last_match.get('other_team_score'),
                 }
 
     return render(request, 'teams/team_details.html', context=context)
