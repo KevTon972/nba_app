@@ -4,6 +4,7 @@ from decouple import config
 
 import json
 import requests
+import threading
 
 headers = {
         "X-RapidAPI-Key": config('X-RapidAPI-Key'),
@@ -35,7 +36,6 @@ def nba_players():
     nba_teams = nba_teams_id_name()
     team_id = [nba_teams[key]['id'] for key in nba_teams]
     team_names = [key for key in nba_teams]
-    team_players = []
     players = {}
 
     for id in team_id:
@@ -47,8 +47,8 @@ def nba_players():
             while i < len(response['players']):
                 if id == nba_teams[name]['id']:
                     players[response['players'][i]['player']['name']] = {
-                    'position': response['players'][i]['player']['position'],
-                    'jersey number': response['players'][i]['player']['shirtNumber'],
+                    'position': response['players'][i]['player'].get('position'),
+                    'jersey number': response['players'][i]['player'].get('shirtNumber'),
                     'id': response['players'][i]['player']['id'],
                     'team': name
                 }
@@ -88,10 +88,10 @@ def team_manager(team):
             for team_name in teams_names:
                 if response['manager']['team']['name'] == team_name:
                     nba_teams[team_name]['manager'] = response['manager']['name']
-        except TypeError:
+        except KeyError:
             continue
 
-    return nba_teams[team].get('manager')
+    return nba_teams[team]['manager']
 
 
 def team_next_match(team):
@@ -165,10 +165,10 @@ def teams_list(request):
 
 def team_details(request, team_name):
     """display team's players, coach, last match and next match"""
-    nba_teams = nba_teams_id_name()                                 # return all nba team's name and id
+    nba_teams = nba_teams_id_name()                            # return all nba team's name and id
     nbaplayers = nba_players()                                      # return all nba player'name, position, jersey_number and id
-    manager = team_manager(team_name)                               # return teams's coach
-    next_opponent =team_next_match(team_name)
+    manager = team_manager(team_name)                              # return teams's coach
+    next_opponent = team_next_match(team_name)
     last_match = team_last_match(team_name)
 
     last_opponent_name = last_match.get('other_team')

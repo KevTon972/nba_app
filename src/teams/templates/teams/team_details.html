@@ -26,7 +26,9 @@
         <img src="data:image/png;base64,{{img}}" alt="player image" style="height: 80px;">
         {% endfor %}
         {% for player in team_starter_players %}
-        <h3 class="starter">{{player}}</h3>
+        <a href="{% url 'player_details' player %}" class="player_name">
+            {{player}}
+        </a>
         {% endfor %}
         <div class="starter_positions">
             {% for position in starter_positions %}</div>
@@ -48,7 +50,9 @@
                         <tr>
                             {% for player in team_bench%}
                             <td>
-                                {{player}}
+                                <a href="{% url 'player_details' player %}" class="player_name">
+                                    {{player}}
+                                </a>
                             </td>
                             {% endfor %}
                             {% for position in bench_positions %}
